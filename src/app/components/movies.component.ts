@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { MoviesService } from '../services/movies.service';
+import { FavMovies, MoviesService } from '../services/movies.service';
 import { Movies } from '../models/movies';
+import { Favorites } from '../models/favorites';
+import { AuthService } from '../auth/services/auth.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-movies',
@@ -36,8 +39,13 @@ import { Movies } from '../models/movies';
             <button
               mat-mini-fab
               class="btn-like"
-              (click)="onToggle(i)"
-              [style.background-color]="clicked[i] ? 'red' : 'gray'"
+              id="{{ movie.id }}"
+              (click)="toggleClass(movie.id, i, movie)"
+              [className]="
+                clicked[i]
+                  ? 'mat-focus-indicator btn-like mat-mini-fab mat-button-base mat-accent reddone'
+                  : 'mat-focus-indicator btn-like mat-mini-fab mat-button-base mat-accent'
+              "
             >
               <mat-icon>favorite</mat-icon>
             </button>
@@ -73,26 +81,111 @@ import { Movies } from '../models/movies';
       .prova {
         font-size: 0.8em;
       }
+
+      .reddone {
+        background-color: red;
+      }
     `,
   ],
 })
 export class MoviesComponent implements OnInit {
   movies: Movies[] = [];
   isLoading: boolean = true;
+  getFav: Favorites[] = [];
+  sub!: Subscription;
+  userId!: number;
 
   // tracking Variable of Likes Buttons //
   clicked: { [key: number]: boolean } = {};
 
-  constructor(private moviesService: MoviesService) {
+  constructor(
+    private moviesService: MoviesService,
+    private authService: AuthService
+  ) {
     this.moviesService.getMovies().subscribe((data) => {
       this.movies = data;
       this.isLoading = false;
     });
   }
 
+  toggleClass(idMovie: any, i: number, movies: Movies) {
+    const elementClass = document.getElementById(`${idMovie}`);
+    if (elementClass?.classList.contains('reddone') === true) {
+      elementClass.classList.remove('reddone');
+      this.removeFav(movies);
+    } else {
+      elementClass?.classList.add('reddone');
+      this.addFav(movies);
+    }
+  }
+
   onToggle(i: any) {
     this.clicked[i] = !this.clicked[i];
   }
 
-  ngOnInit(): void {}
+  async addFav(movie: Movies) {
+    this.sub = (
+      await this.moviesService.addPref(this.userId, movie.id)
+    ).subscribe((data) => {
+      this.getFav.push(data);
+      console.log(this.getFav);
+    });
+  }
+
+  getFavorites(userId: number) {
+    this.sub = this.moviesService.getFavourite(userId).subscribe((data) => {
+      this.getFav = data;
+      console.log(this.getFav);
+    });
+  }
+
+  checkFavorites() {}
+
+  async removeFav(movie: Movies) {
+    const favorite = this.getFav.find(
+      (favorite) => favorite.movieId == movie.id
+    );
+    this.getFav = this.getFav.filter((fav) => fav !== favorite);
+    if (!favorite) {
+      return;
+    }
+    this.sub = this.moviesService.removePref(favorite.id).subscribe();
+  }
+
+  colorFav(userId: number) {
+    /* this.userId = JSON.parse(localStorage.getItem('user') || '');
+
+    console.log(this.userId.user.id); */
+
+    this.moviesService.getFavourite(userId).subscribe((fav) => {
+      this.getFav = fav;
+      const userPippo = userId;
+
+      const prova = this.getFav.filter(function (el) {
+        return el.userId === userPippo;
+      });
+
+      console.log(prova);
+
+      for (let index = 0; index < prova.length; index++) {
+        console.log(prova[index].movieId);
+        const styleChange = document.getElementById(`${prova[index].movieId}`);
+        if (styleChange !== null) {
+          styleChange.classList.add('reddone');
+        }
+      }
+    });
+  }
+
+  ngOnInit(): void {
+    this.sub = this.authService.user$.subscribe((data) => {
+      if (!data) {
+        return;
+      }
+      this.userId = data.user.id;
+    });
+
+    this.getFavorites(this.userId);
+    this.colorFav(this.userId);
+  }
 }

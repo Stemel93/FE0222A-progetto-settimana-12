@@ -11,11 +11,20 @@ import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { TokenInterceptor } from './token.interceptor';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
+import { LoggedGuard } from './logged.guard';
 
 const routes: Routes = [
   {
     path: 'login',
+
     component: LoginComponent,
+    canActivate: [LoggedGuard],
+  },
+  {
+    path: 'register',
+
+    component: RegisterComponent,
+    canActivate: [LoggedGuard],
   },
 ];
 

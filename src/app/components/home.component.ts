@@ -3,7 +3,8 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { MatSidenav } from '@angular/material/sidenav';
 import { delay, filter } from 'rxjs/operators';
 import { NavigationEnd, Router } from '@angular/router';
-import { AuthService } from '../auth/services/auth.service';
+import { AuthData, AuthService } from '../auth/services/auth.service';
+import { take } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -13,7 +14,7 @@ import { AuthService } from '../auth/services/auth.service';
         <mat-icon *ngIf="!sidenav.opened"> menu </mat-icon>
         <mat-icon *ngIf="sidenav.opened"> close </mat-icon>
       </button>
-      <div class="title">Next( )D-Flix Movies</div>
+      <div class="title">Next( )D-Flix</div>
     </mat-toolbar>
 
     <mat-sidenav-container>
@@ -23,8 +24,8 @@ import { AuthService } from '../auth/services/auth.service';
           src="https://source.unsplash.com/c_GmwfHBDzk/200x200"
         />
 
-        <h4 class="name">John Smith</h4>
-        <p class="designation">Software Engineer</p>
+        <h4 class="name">{{ welcome.user.name }}</h4>
+        <p class="designation">Bentornato</p>
 
         <mat-divider></mat-divider>
 
@@ -132,6 +133,11 @@ import { AuthService } from '../auth/services/auth.service';
 export class HomeComponent implements OnInit {
   @ViewChild(MatSidenav)
   sidenav!: MatSidenav;
+  welcome!: {
+    user: {
+      name: string;
+    };
+  };
 
   constructor(
     private observer: BreakpointObserver,
@@ -162,7 +168,10 @@ export class HomeComponent implements OnInit {
       });
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.welcome = JSON.parse(localStorage.getItem('user') || '');
+    console.log(this.welcome.user.name);
+  }
 
   logOff() {
     this.authService.logout();

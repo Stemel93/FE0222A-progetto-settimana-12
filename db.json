@@ -5,6 +5,12 @@
       "password": "$2a$10$SmgrR2x18eeoJMFtk9N9FORmSTDG0ToOtqOS0Ik0jgiRWoAqe7sT2",
       "name": "nicola toledo",
       "id": 1
+    },
+    {
+      "email": "mauro.migliorino93@gmail.com",
+      "password": "$2a$10$ftjojOoff1.0RsR8nk/O4uBKUPdpzB3Y0/LomQWL3bPl5ynudNmVG",
+      "name": "Mauro",
+      "id": 2
     }
   ],
   "favorites": [
@@ -17,6 +23,26 @@
       "userId": 1,
       "movieId": 460465,
       "id": 5
+    },
+    {
+      "movieId": 460465,
+      "userId": 2,
+      "id": 8
+    },
+    {
+      "movieId": 578701,
+      "userId": 2,
+      "id": 9
+    },
+    {
+      "movieId": 717192,
+      "userId": 2,
+      "id": 10
+    },
+    {
+      "movieId": 813258,
+      "userId": 2,
+      "id": 11
     }
   ],
   "genres": [
